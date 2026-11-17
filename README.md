@@ -348,6 +348,18 @@ The planted tank with its lights off: night in the tank, the filter still runnin
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-vivarium-card/main/screenshots/freshwater-night.gif" alt="freshwater night animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-vivarium-card/main/screenshots/freshwater-night-light.gif" alt="freshwater night animation light" width="400"> |
 
+The planted tank just fed: the flakes fall among the plants:
+
+| Dark | Light |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-vivarium-card/main/screenshots/freshwater-feeding.gif" alt="planted tank feeding animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-vivarium-card/main/screenshots/freshwater-feeding-light.gif" alt="planted tank feeding animation light" width="400"> |
+
+A planted tank in trouble (filter stopped, nitrate high): the water greens with algae, the fish stand still and nothing flows:
+
+| Dark | Light |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-vivarium-card/main/screenshots/freshwater-problems.gif" alt="planted tank in trouble animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-vivarium-card/main/screenshots/freshwater-problems-light.gif" alt="planted tank in trouble animation light" width="400"> |
+
 ### Scenes
 
 Beyond the reef and the planted tank, the header can show 18 themed aquariums, 11 terrariums and 3 turtle and axolotl tanks (`scene`). With `scene: auto` (the default) a theme is chosen when the title, the area or the devices name it, in any of the card's languages (*Shrimp tank*, *Bac à crevettes*, *Malawi*, *Hippocampes*, *Koi pond*…), among the themes of the tank's kind; else the reef or the planted tank. A scene set in the options also gives the kind of tank (and so its ideal ranges) unless `kind` is set. Every scene follows the light (night, moonlight), the heater, the filter, the CO₂ and the feeder as the reef and the planted tank do.
