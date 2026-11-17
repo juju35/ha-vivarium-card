@@ -250,7 +250,7 @@ zoom: true
 | `show_subtitle` | both | `true` | Show the subtitle (volume, temperature, light) |
 | `illustration` | both | `true` | The animated tank as header; `false` gives a classic header (round icon, title, status pill) |
 | `scene` | both | `auto` | The habitat drawn in the header: `reef`, `planted`, an aquarium theme — `iwagumi`, `blackwater`, `malawi`, `tanganyika`, `shrimp`, `betta`, `goldfish`, `mangrove`, `pond`, `axolotl` (freshwater), `sps`, `soft_coral`, `nano_reef`, `seahorse`, `jellyfish`, `predator`, `wreck`, `abyss`, `arctic` (reef) — a terrarium — `desert`, `rainforest`, `leopard_gecko`, `chameleon`, `ball_python`, `tarantula`, `insects`, `crested_gecko`, `paludarium`, `hermit_crab`, `tortoise` — or a turtle tank — `turtle`, `musk_turtle`. With `auto`, the animal or theme named by the title, the area or the devices (*Ball python*, *Mygale*, *Dart frogs*, *Shrimp tank*, *Koi pond*…), else the reef, the planted tank, the turtle tank, or a desert or a rainforest after the terrarium's humidity. The scene also sets the animal's ideal ranges. See [Scenes](#scenes) |
-| `illustration_theme` | both | `auto` | `day`, `night` or `auto`: the light of the tank (off: night, dimmed: moonlight), else the sun below the horizon or the dark theme when the tank has no light entity |
+| `illustration_theme` | both | `auto` | `day`, `night` or `auto`: the light of the tank (off: night, dimmed: moonlight), else the Home Assistant theme when the tank has no light entity (night with a dark theme, day with a light theme) |
 | `show_equipment` | both | `true` | Equipment tiles |
 | `show_quality` | both | `true` | Water quality section |
 | `show_advice` | both | `true` | Advice section |
@@ -647,7 +647,7 @@ The card gathers the entities of the `area` (those of its devices and those set 
 
 Configuration, disabled and hidden entities are left out, and so are diagnostic ones except measures, counters and the filter speed (Seneye and EHEIM file theirs there). Any role set in the options replaces the discovered one, so the card also works with no area or device at all, entity by entity.
 
-The **status** is the worst level of the water quality gauges and of the advice. **Night** in the tank follows the light (off: night, dimmed: moonlight), else the sun and the dark theme; `illustration_theme` forces it. A **feeding** is a button pressed, a script run or a switch turned on less than 3 minutes ago.
+The **status** is the worst level of the water quality gauges and of the advice. **Night** in the tank follows the light (off: night, dimmed: moonlight), else the Home Assistant theme (night with a dark theme, day with a light theme); `illustration_theme` forces it. A **feeding** is a button pressed, a script run or a switch turned on less than 3 minutes ago.
 
 ## Development
 

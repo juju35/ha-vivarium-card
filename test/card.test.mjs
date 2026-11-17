@@ -205,7 +205,7 @@ test("the reef in its normal state: all good, tiles, gauges, daylight scene", ()
   assert.match(h, /class="bubbles"/);
 });
 
-test("night in the tank follows its light: off is night, dimmed is moonlight; without a light, the sun and theme", () => {
+test("night in the tank follows its light: off is night, dimmed is moonlight; without a light, the theme alone", () => {
   assert.match(bannerClass(newCard(reefConfig, makeHass(reefNight))), /dark moonlit/);
   assert.match(html(newCard(reefConfig, makeHass(reefNight))), /Moonlight · 7 %/);
   const off = newCard(freshConfig, makeHass(freshNight));
@@ -214,7 +214,8 @@ test("night in the tank follows its light: off is night, dimmed is moonlight; wi
   assert.match(html(off), /Lights off/);
   const noLight = { ...freshConfig, light: "sensor.none" };
   assert.doesNotMatch(bannerClass(newCard(noLight, makeHass())), /dark/);
-  assert.match(bannerClass(newCard(noLight, makeHass({ "sun.sun": { state: "below_horizon" } }))), /dark/);
+  assert.doesNotMatch(bannerClass(newCard(noLight, makeHass({ "sun.sun": { state: "below_horizon" } }))), /dark/, "a light theme keeps the day after sunset");
+  assert.match(bannerClass(newCard(noLight, makeHass({ "sun.sun": { state: "above_horizon" } }, { themes: { darkMode: true } }))), /dark/);
   assert.match(bannerClass(newCard({ ...reefConfig, illustration_theme: "night" })), /dark moonlit/);
   assert.doesNotMatch(bannerClass(newCard({ ...freshConfig, illustration_theme: "day" }, makeHass(freshNight))), /dark/);
 });

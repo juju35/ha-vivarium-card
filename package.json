@@ -1,6 +1,6 @@
 {
   "name": "ha-vivarium-card",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lovelace cards for Home Assistant to watch over a vivarium: an aquarium (reef or freshwater), a terrarium or a turtle tank. An animated habitat as header, water quality or climate gauges with ideal ranges and advice, and the equipment around it (lights, basking and UVB lamps, heater, filter, pumps, CO2, mister, feeder, top-off) from any integration.",
   "private": true,
   "type": "module",
