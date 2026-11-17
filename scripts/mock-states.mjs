@@ -140,3 +140,10 @@ export const reefProblems = {
 };
 // The planted tank with its lights off (night) and the filter still running.
 export const freshNight = { "light.classicledcontrol": { state: "off", attributes: { friendly_name: "classicLEDcontrol+e" } } };
+// The planted tank just fed: the flakes fall among the plants.
+export const freshFeeding = { "button.planted_tank_feeder": { state: ago(1) } };
+// The planted tank in trouble: the filter stopped and the nitrate high, the water greens with algae and the fish stand still.
+export const freshProblems = {
+  "switch.classicvario_pump": { state: "off" },
+  "sensor.planted_tank_nitrate": { state: "70" },
+};

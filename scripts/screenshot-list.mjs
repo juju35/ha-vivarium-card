@@ -2,7 +2,7 @@
 // Every capture has a twin in the other theme ("-dark" for a light capture, "-light" for a dark one)
 // that shows exactly the same state: only the theme differs (checked by test/screenshots.test.mjs).
 import { SCENE_THEMES, VIV_THEMES } from "./scene-themes.mjs";
-import { feeding, freshConfig, freshNight, reefConfig, reefNight, reefProblems, terraConfig, turtleConfig } from "./mock-states.mjs";
+import { feeding, freshConfig, freshFeeding, freshNight, freshProblems, reefConfig, reefNight, reefProblems, terraConfig, turtleConfig } from "./mock-states.mjs";
 
 const pair = (base, other = "dark") => [
   { ...base, theme: other === "dark" ? "light" : "dark" },
@@ -36,6 +36,8 @@ export const shots = [
 //   reef-problems   — too warm, return pump stopped: the fish stand still, the water clouds
 //   freshwater      — planted tank: neon tetras, discus and angelfish, the heater glows, CO2 bubbles rise
 //   freshwater-night — lights off: the planted tank at night, the filter still running
+//   freshwater-feeding — the planted tank just fed: flakes fall among the plants
+//   freshwater-problems — filter stopped, nitrate high: the water greens, the fish stand still, nothing flows
 export const gifs = [
   ...pair({ file: "reef", type: "vivarium-card", width: 460, config: reefConfig, scene: true }),
   ...pair({ file: "reef-night", type: "vivarium-card", width: 460, config: reefConfig, overrides: reefNight, scene: true }, "light"),
@@ -43,6 +45,8 @@ export const gifs = [
   ...pair({ file: "reef-problems", type: "vivarium-card", width: 460, config: reefConfig, overrides: reefProblems, scene: true }),
   ...pair({ file: "freshwater", type: "vivarium-card", width: 460, config: freshConfig, scene: true }, "light"),
   ...pair({ file: "freshwater-night", type: "vivarium-card", width: 460, config: freshConfig, overrides: freshNight, scene: true }, "light"),
+  ...pair({ file: "freshwater-feeding", type: "vivarium-card", width: 460, config: freshConfig, overrides: freshFeeding, scene: true }, "light"),
+  ...pair({ file: "freshwater-problems", type: "vivarium-card", width: 460, config: freshConfig, overrides: freshProblems, scene: true }, "light"),
 ];
 
 // One looping GIF per themed scene (option `scene`), on the reef or the planted tank of the mock data: each theme
