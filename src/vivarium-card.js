@@ -6495,7 +6495,7 @@ class VivariumCard extends HTMLElement {
     const setup = setupOf(h, this._config);
     if (setup.error) return null;
     // The minute: the feeding scene and "fed 2 h ago" move on with time.
-    return [h.entities, h.devices, h.areas, h.language, h.locale, h.themes?.darkMode, h.states["sun.sun"]?.state, Math.floor(Date.now() / 60000), ...Object.values(setup.roles).map((id) => h.states[id])];
+    return [h.entities, h.devices, h.areas, h.language, h.locale, h.themes?.darkMode, Math.floor(Date.now() / 60000), ...Object.values(setup.roles).map((id) => h.states[id])];
   }
 
   connectedCallback() {
@@ -6623,8 +6623,8 @@ class VivariumCard extends HTMLElement {
     return { ...setup, name, kind, scene, mainTemp, metrics, quality, tips, status, feeding, fedAt: at, now };
   }
 
-  // Night in the tank: the option, else the light (off: night, dimmed: moonlight), else the sun below the horizon
-  // or the dark theme when the tank has no light entity.
+  // Night in the tank: the option, else the light (off: night, dimmed: moonlight), else Home Assistant's dark theme
+  // alone when the tank has no light entity (a light theme keeps the day picture after sunset).
   _lighting(m) {
     const light = this._s(m.roles.light);
     const mode = this._config.illustration_theme;
@@ -6634,10 +6634,8 @@ class VivariumCard extends HTMLElement {
       if (!isOn(light)) return { dark: true, moon: false };
       return isMoon(light) ? { dark: true, moon: true } : { dark: false, moon: false };
     }
-    const sun = this._s("sun.sun")?.state;
-    if (sun === "below_horizon") return { dark: true, moon: true };
-    if (sun === "above_horizon") return { dark: false, moon: false };
-    return { dark: !!this._hass.themes?.darkMode, moon: !!this._hass.themes?.darkMode };
+    const dark = !!this._hass.themes?.darkMode;
+    return { dark, moon: dark };
   }
 
   // What the scene draws and animates.
