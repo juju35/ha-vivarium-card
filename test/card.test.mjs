@@ -317,6 +317,23 @@ test("the mini card: pills, filter and feeding lines, detail button switching to
   assert.doesNotMatch(html(newCard({ ...reefConfig, zoom: false }, makeHass(), aq.VivariumMiniCard)), /class="zoom/);
 });
 
+test("light words: brand names and led as whole words only, no light in enabled/scheduled/primed switches", () => {
+  const hass = makeHass();
+  const want = {
+    "switch.reef_led": "light",
+    "switch.ai_prime_16hd": "light",
+    "switch.hydra_64": "light",
+    "switch.aquarium_lighting": "light",
+    "switch.aquarium_schedule_enabled": null,
+    "switch.aquarium_pump_primed": "filter",
+    "switch.aquarium_hydraulic_valve": null,
+  };
+  for (const [id, role] of Object.entries(want)) assert.equal(aq.roleOf(id, hass), role, id);
+  // A hass without registries (very old Home Assistant, tests) does not throw in auto mode.
+  const bare = { ...hass, entities: undefined, devices: undefined };
+  assert.doesNotThrow(() => aq.setupOf(bare, {}));
+});
+
 test("the status pill sits on the title's row in the illustrated header, the corner keeps the detail button alone", () => {
   for (const [cls, cfg] of [
     [aq.VivariumCard, reefConfig],

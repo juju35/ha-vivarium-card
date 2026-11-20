@@ -4577,7 +4577,8 @@ const SKIMMER_RE = /skimmer|abschaum|ecumeur|espumador|schiumatoio/;
 const WAVE_RE = /wave|vortech|stream|circulat|powerhead|gyre|stromung|stroemung|brassage|courant|onda|nero|mp\d\d/;
 const RETURN_RE = /return|retour|ruckfoerder|ruckforder|rucklauf|reefrun|vectra|remontee|riflusso/;
 const AIR_RE = /air.?pump|airpump|air.?stone|bulleur|aerat|luftpumpe|sauerstoffpumpe|aireador|oxygen.?pump|diffuser.?air/;
-const LIGHT_RE = /light|lamp|lumi|eclair|licht|beleucht|luz|luce|verlicht|helialux|radion|hydra|prime|reefled|led/;
+// Short brand words and "led" as whole words only: "enabled", "scheduled" or "primed" are no lights.
+const LIGHT_RE = /light|lamp|lumi|eclair|licht|beleucht|luz|luce|verlicht|helialux|radion|reefled|(^|[^a-z])(hydra|prime|leds?)([^a-z]|$)/;
 const FILTER_RE = /filter|filtre|filtro|pump|pompe|pumpe|bomba|canister|vario|professionel/;
 const SPEED_RE = /speed|vitesse|drehzahl|velocidad|velocita|snelheid|rpm|flow|debit/;
 const ROOM_RE = W("air|room|ambient|ambiance|outdoor|outside|exterieur|ambiante|piece|raum|aussen|luft|aria|aire|lucht|powietrz\\w*|vzduch\\w*");
@@ -4705,6 +4706,7 @@ const rankOf = (role, id, hass, diagnostic) => {
 
 const _byDevice = new WeakMap();
 const devicesOf = (hass) => {
+  if (!hass.entities) return new Map();
   const cached = _byDevice.get(hass.entities);
   if (cached) return cached;
   const map = new Map();
@@ -4752,6 +4754,7 @@ const rolesAmong = (hass, ids) => {
 // aquarium / reef / tank, all together (an aquarium is often several devices: a filter, a heater, a light).
 const _auto = new WeakMap();
 const autoIds = (hass) => {
+  if (!hass.entities) return [];
   const cached = _auto.get(hass.entities);
   if (cached && cached.devices === hass.devices) return cached.ids;
   const ids = [];
