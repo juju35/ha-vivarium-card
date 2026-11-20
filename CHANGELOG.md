@@ -2,6 +2,9 @@
 
 ## 1.0.3 - 2026-11-20
 
+### Fixes
+- Illustrated header: the status pill sits on the title's row, right after the title, as on the other ha-* cards (it was in the top right corner with the detail button); when the whole title and the pill's whole label do not fit side by side, it takes its own line under the subtitle, or shows its dot alone (measured, in every language, also once Home Assistant's card has rendered).
+
 ### Performance
 - Cards set by `area`: the entities of the area are gathered once per registry change, not on every state change of Home Assistant (the whole entity registry was scanned each time).
 

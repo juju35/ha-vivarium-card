@@ -6047,23 +6047,31 @@ const BASE_STYLE = `
   /* The texts keep to the left: the fish swim in the right part of the tank, under the status pill. */
   .head { position: absolute; z-index: 1; left: 0; top: 0; right: min(42%, 170px); bottom: var(--ground-h); box-sizing: border-box;
           display: flex; align-items: center; gap: 10px; padding: 8px 4px 8px 14px; min-width: 0; color: var(--aq-text); }
-  /* The status pill and the detail button: the top right corner, as on the other ha-* cards. */
-  .corner { position: absolute; z-index: 2; top: 6px; right: 6px; display: flex; align-items: center; gap: 6px; max-width: 60%; }
-  .corner .chip { max-width: none; }
+  /* The detail button: the top right corner, as on the other ha-* cards. */
+  .corner { position: absolute; z-index: 2; top: 6px; right: 6px; display: flex; align-items: center; gap: 6px; }
   .badge { width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; position: relative;
            --tint: var(--c, var(--aq-accent)); color: color-mix(in srgb, var(--tint) 75%, #0d2a45);
            background: rgba(255,255,255,.66); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 30%, transparent); transition: color .3s ease; }
   .dark .badge, .ink .badge { background: rgba(255,255,255,.14); color: color-mix(in srgb, var(--tint) 60%, #ffffff); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
   .badge .icon { width: 24px; height: 24px; }
   .titles { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
-  /* The status pill sits on the title's line, at the right of the header. */
+  /* The status pill sits on the title's line, right after the title, with its whole label (placed by _fitPill). */
   .title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .name { flex: 1 1 0; min-width: 5ch; font-size: 16px; font-weight: 500; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .title-row > .chip { flex: none; max-width: none; }
+  .name { flex: 0 1000 auto; min-width: 0; font-size: 16px; font-weight: 500; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   :host([hide-title]) .name { visibility: hidden; }
   :host([hide-subtitle]) .sub { display: none; }
   /* The subtitle on two lines at most. */
   .sub { font-size: 12px; line-height: 16px; color: var(--aq-muted, var(--secondary-text-color)); display: -webkit-box; -webkit-line-clamp: 2;
          -webkit-box-orient: vertical; overflow: hidden; }
+  /* The whole title and the whole pill do not fit side by side (measured, see _fitPill): the pill goes to its own
+     line, under the subtitle kept to one line; if that does not fit above the substrate either, its dot alone. */
+  .titles.below > .title-row { display: contents; }
+  .titles.below > .title-row > .chip { order: 3; align-self: flex-start; max-width: 100%; margin-top: 3px; }
+  .titles.below > .sub { order: 2; -webkit-line-clamp: 1; }
+  .titles.dot-only > .title-row { display: flex; }
+  .titles.dot-only > .title-row > .chip { order: 0; align-self: center; margin-top: 0; padding: 4px; }
+  .titles.dot-only .chip-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   /* On the water, the pill gets a frosted base so that it reads over the fish. */
   .banner .chip { background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.86)); color: color-mix(in srgb, var(--c) 55%, #0d2a45); }
   .banner.dark .chip, .banner.ink .chip { background: color-mix(in srgb, var(--c) 30%, rgba(10,24,48,.72)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
@@ -6334,6 +6342,13 @@ const MINI_STYLE = `
 
 // Home Assistant dialogs (more-info opened from the card): a click there is not a click elsewhere on the page.
 const DIALOG_TAGS = new Set(["HA-MORE-INFO-DIALOG", "HA-DIALOG", "DIALOG"]);
+// The width of an element's text as laid out (whole, even when its box cuts it with an ellipsis).
+const textWidth = (el) => {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  return range.getBoundingClientRect().width || el.scrollWidth;
+};
+
 const isOutside = (card, ev) => {
   const path = ev.composedPath();
   return !path.includes(card) && !path.some((n) => DIALOG_TAGS.has(n.tagName));
@@ -6525,6 +6540,18 @@ class VivariumCard extends HTMLElement {
       else this._update();
     };
     (this._onOutsideWatch ??= watchOutside(this, (ev) => this._onOutside(ev))).on();
+    // A new width (or the web font loaded): the status pill is fitted again, in the next frame.
+    if (typeof ResizeObserver === "function") {
+      this._resize ??= new ResizeObserver((entries) => {
+        const w = Math.round(entries.at(-1).contentRect.width);
+        if (w === this._fitWidth) return;
+        this._fitWidth = w;
+        cancelAnimationFrame(this._fitFrame);
+        this._fitFrame = requestAnimationFrame(() => this._fitPill());
+      });
+      this._resize.observe(this);
+    }
+    document.fonts?.ready?.then(() => this._fitPill());
     this._update?.();
     if (this._confirm) window.addEventListener("keydown", this._onKey);
     clearInterval(this._tick);
@@ -6536,6 +6563,10 @@ class VivariumCard extends HTMLElement {
   disconnectedCallback() {
     clearInterval(this._tick);
     this._tick = null;
+    this._resize?.disconnect();
+    this._resize = null;
+    this._fitWidth = null;
+    if (this._fitFrame) cancelAnimationFrame(this._fitFrame);
     this._onOutsideWatch?.off();
     this._pressing = false;
     window.removeEventListener("pointerup", this._onPressEnd, true);
@@ -6576,8 +6607,43 @@ class VivariumCard extends HTMLElement {
     if (html === this._html) return;
     this._html = html;
     morph(this.shadowRoot, html);
+    this._fitPill();
+    // A new <ha-card> (first render) shows its content once Home Assistant has rendered it (Lit, a microtask
+    // later): the pill measured on the empty card is measured again then, before the frame is painted.
+    const card = this.shadowRoot.querySelector?.("ha-card");
+    if (card && card !== this._fitCard) {
+      this._fitCard = card;
+      if (card.hasUpdated === false && card.updateComplete?.then) card.updateComplete.then(() => this._fitPill());
+    }
     // The popup's safe choice (Cancel) gets the focus: Enter or Space right after the click does not stop anything.
     if (this._confirm) this.shadowRoot.querySelector?.('.modal [data-action="confirm_cancel"]')?.focus({ preventScroll: true });
+  }
+
+  // The header's status pill goes right after the title, on its row, only while the whole title and the pill's
+  // whole label fit there; otherwise it takes a line of its own under the subtitle (.below, the subtitle on one
+  // line). When that does not fit above the substrate strip, the pill keeps its dot alone (.dot-only, its label in
+  // its tooltip and for screen readers). Measured after each render and on each new width, in every language.
+  _fitPill() {
+    if (!this.isConnected) return;
+    for (const t of this.shadowRoot?.querySelectorAll?.(".titles") || []) {
+      const row = t.querySelector(":scope > .title-row");
+      const chip = row?.querySelector(":scope > .chip");
+      if (!chip?.getBoundingClientRect) continue;
+      t.classList.remove("below", "dot-only");
+      const name = row.querySelector(".name");
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const title = name && getComputedStyle(name).visibility !== "hidden" ? textWidth(name) + gap : 0;
+      if (title + chip.getBoundingClientRect().width <= t.getBoundingClientRect().width + 0.5) continue;
+      t.classList.add("below");
+      const banner = t.closest(".banner");
+      const ground = banner?.querySelector(".ground");
+      const floor = ground ? ground.getBoundingClientRect().top : banner?.getBoundingClientRect().bottom;
+      const box = t.getBoundingClientRect();
+      const text = chip.querySelector(".chip-text");
+      const whole = (!text || text.scrollWidth <= text.clientWidth + 0.5) && chip.getBoundingClientRect().right <= box.right + 0.5;
+      if (whole && (floor === undefined || box.bottom <= floor + 0.5)) continue;
+      t.classList.add("dot-only");
+    }
   }
 
   // ----- Model -------------------------------------------------------------
@@ -6731,7 +6797,7 @@ class VivariumCard extends HTMLElement {
     return `<span class="chip ${m.status}" title="${esc(label)}" aria-label="${esc(label)}"><span class="dot"></span><span class="chip-text">${esc(label)}</span></span>`;
   }
 
-  // The badge, the name and the subtitle; the status pill on the title's line in the classic header.
+  // The badge, the name and the subtitle; the status pill on the title's line, right after the title.
   _titleBlock(m, sub, chip = "") {
     return `<div class="badge ${m.status === "idle" ? "" : m.status}">${svgIcon(badgeIcon(m))}</div>
       <div class="titles">
@@ -6746,7 +6812,8 @@ class VivariumCard extends HTMLElement {
   _header(m, sub) {
     if (this._config.illustration === false)
       return `<div class="header${this._zoomButton() ? " zoomable" : ""}">${this._titleBlock(m, sub, this._chip(m))}${this._zoomButton("plain")}</div>`;
-    return this._banner(m, `<div class="head">${this._titleBlock(m, sub)}</div><div class="corner">${this._chip(m)}${this._zoomButton()}</div>`);
+    const zoom = this._zoomButton();
+    return this._banner(m, `<div class="head">${this._titleBlock(m, sub, this._chip(m))}</div>${zoom ? `<div class="corner">${zoom}</div>` : ""}`);
   }
 
   _zoomButton() {

@@ -317,6 +317,20 @@ test("the mini card: pills, filter and feeding lines, detail button switching to
   assert.doesNotMatch(html(newCard({ ...reefConfig, zoom: false }, makeHass(), aq.VivariumMiniCard)), /class="zoom/);
 });
 
+test("the status pill sits on the title's row in the illustrated header, the corner keeps the detail button alone", () => {
+  for (const [cls, cfg] of [
+    [aq.VivariumCard, reefConfig],
+    [aq.VivariumMiniCard, reefConfig],
+    [aq.VivariumCard, { ...reefConfig, illustration: false }],
+  ]) {
+    const h = html(newCard(cfg, makeHass(), cls));
+    assert.match(h, /<div class="title-row">\s*<div class="name">[^<]*<\/div>\s*<span class="chip /);
+    assert.doesNotMatch(h, /class="corner">\s*<span class="chip/);
+  }
+  assert.match(html(newCard(reefConfig, makeHass(), aq.VivariumMiniCard)), /class="corner"><button class="zoom"/);
+  assert.doesNotMatch(html(newCard(reefConfig, makeHass())), /class="corner"/);
+});
+
 test("scenes: the option, else a theme the names call for (of the tank's kind), else the reef or the planted tank", () => {
   const hass = makeHass();
   const reef = aq.setupOf(hass, reefConfig);
