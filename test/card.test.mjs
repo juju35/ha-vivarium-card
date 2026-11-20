@@ -317,6 +317,37 @@ test("the mini card: pills, filter and feeding lines, detail button switching to
   assert.doesNotMatch(html(newCard({ ...reefConfig, zoom: false }, makeHass(), aq.VivariumMiniCard)), /class="zoom/);
 });
 
+test("light words: brand names and led as whole words only, no light in enabled/scheduled/primed switches", () => {
+  const hass = makeHass();
+  const want = {
+    "switch.reef_led": "light",
+    "switch.ai_prime_16hd": "light",
+    "switch.hydra_64": "light",
+    "switch.aquarium_lighting": "light",
+    "switch.aquarium_schedule_enabled": null,
+    "switch.aquarium_pump_primed": "filter",
+    "switch.aquarium_hydraulic_valve": null,
+  };
+  for (const [id, role] of Object.entries(want)) assert.equal(aq.roleOf(id, hass), role, id);
+  // A hass without registries (very old Home Assistant, tests) does not throw in auto mode.
+  const bare = { ...hass, entities: undefined, devices: undefined };
+  assert.doesNotThrow(() => aq.setupOf(bare, {}));
+});
+
+test("the status pill sits on the title's row in the illustrated header, the corner keeps the detail button alone", () => {
+  for (const [cls, cfg] of [
+    [aq.VivariumCard, reefConfig],
+    [aq.VivariumMiniCard, reefConfig],
+    [aq.VivariumCard, { ...reefConfig, illustration: false }],
+  ]) {
+    const h = html(newCard(cfg, makeHass(), cls));
+    assert.match(h, /<div class="title-row">\s*<div class="name">[^<]*<\/div>\s*<span class="chip /);
+    assert.doesNotMatch(h, /class="corner">\s*<span class="chip/);
+  }
+  assert.match(html(newCard(reefConfig, makeHass(), aq.VivariumMiniCard)), /class="corner"><button class="zoom"/);
+  assert.doesNotMatch(html(newCard(reefConfig, makeHass())), /class="corner"/);
+});
+
 test("scenes: the option, else a theme the names call for (of the tank's kind), else the reef or the planted tank", () => {
   const hass = makeHass();
   const reef = aq.setupOf(hass, reefConfig);
@@ -488,4 +519,17 @@ test("a turtle tank: water and basking spot; terrarium words in other languages"
     assert.equal(kind, aq.SCENES[scene], title);
     assert.equal(aq.sceneOf(hass, config, terra, kind), scene, title);
   }
+});
+
+test("the area's entities are scanned once per registry, not on every state change", () => {
+  const hass = makeHass();
+  const area = reefConfig.area;
+  const areaId = Object.values(areas).find((a) => a.area_id === area || a.name === area)?.area_id ?? area;
+  const first = aq.areaIdsOf(hass, areaId);
+  assert.ok(first.length > 0);
+  // A state change: same registries, same list (not scanned again).
+  assert.equal(aq.areaIdsOf({ ...hass, states: { ...hass.states } }, areaId), first);
+  // A new entity registry: scanned again.
+  assert.notEqual(aq.areaIdsOf({ ...hass, entities: { ...hass.entities } }, areaId), first);
+  assert.deepEqual(plain(aq.areaIdsOf({ ...hass, entities: undefined }, areaId)), []);
 });
