@@ -69,7 +69,7 @@ export const load = () => {
   vm.createContext(sandbox);
   return vm.runInContext(
     `${source}
-    ({ STRINGS, ROLES, SCENES, THEME_ART, sceneOf, roleOf, setupOf, kindOf, rangeOf, levelOf, scaleOf, isMoon, fedAt, levelLow, serviceMs, fmtDuration, esc, lang, sceneSvg, morph,
+    ({ STRINGS, ROLES, SCENES, THEME_ART, sceneOf, roleOf, setupOf, areaIdsOf, kindOf, rangeOf, levelOf, scaleOf, isMoon, fedAt, levelLow, serviceMs, fmtDuration, esc, lang, sceneSvg, morph,
        VivariumCard: customElements.get("vivarium-card"), VivariumMiniCard: customElements.get("vivarium-mini-card"),
        VivariumCardEditor: customElements.get("vivarium-card-editor"), VivariumMiniCardEditor: customElements.get("vivarium-mini-card-editor"), fireDocument, window })`,
     sandbox,

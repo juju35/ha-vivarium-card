@@ -4764,6 +4764,26 @@ const autoIds = (hass) => {
   return ids;
 };
 
+// The entities of an area (their own area, else their device's). Home Assistant pushes a new hass on every state
+// change and the card reads its setup each time: the registries are scanned again only when they change.
+const _byArea = new WeakMap();
+const areaIdsOf = (hass, areaId) => {
+  if (!hass.entities) return [];
+  let cached = _byArea.get(hass.entities);
+  if (!cached || cached.devices !== hass.devices) {
+    cached = { devices: hass.devices, areas: new Map() };
+    _byArea.set(hass.entities, cached);
+  }
+  if (!cached.areas.has(areaId)) {
+    const ids = [];
+    for (const e of Object.values(hass.entities || {})) {
+      if ((e.area_id || hass.devices?.[e.device_id]?.area_id) === areaId) ids.push(e.entity_id);
+    }
+    cached.areas.set(areaId, ids);
+  }
+  return cached.areas.get(areaId);
+};
+
 // The entities of the card: those of the area and of the devices set (or found), each role replaced by the one
 // set in the options.
 const setupOf = (hass, config) => {
@@ -4775,9 +4795,7 @@ const setupOf = (hass, config) => {
     const areaId = findAreaId(hass, config.area);
     if (areaId === undefined) return { error: "unknown_area" };
     area = hass.areas?.[areaId] || null;
-    for (const e of Object.values(hass.entities || {})) {
-      if ((e.area_id || hass.devices?.[e.device_id]?.area_id) === areaId) ids.push(e.entity_id);
-    }
+    ids.push(...areaIdsOf(hass, areaId));
   }
   for (const device of [].concat(config.devices || [], config.device || [])) {
     const id = findDeviceId(hass, device);

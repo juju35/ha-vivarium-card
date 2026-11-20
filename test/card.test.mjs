@@ -489,3 +489,16 @@ test("a turtle tank: water and basking spot; terrarium words in other languages"
     assert.equal(aq.sceneOf(hass, config, terra, kind), scene, title);
   }
 });
+
+test("the area's entities are scanned once per registry, not on every state change", () => {
+  const hass = makeHass();
+  const area = reefConfig.area;
+  const areaId = Object.values(areas).find((a) => a.area_id === area || a.name === area)?.area_id ?? area;
+  const first = aq.areaIdsOf(hass, areaId);
+  assert.ok(first.length > 0);
+  // A state change: same registries, same list (not scanned again).
+  assert.equal(aq.areaIdsOf({ ...hass, states: { ...hass.states } }, areaId), first);
+  // A new entity registry: scanned again.
+  assert.notEqual(aq.areaIdsOf({ ...hass, entities: { ...hass.entities } }, areaId), first);
+  assert.deepEqual(plain(aq.areaIdsOf({ ...hass, entities: undefined }, areaId)), []);
+});
