@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.3 - 2026-11-20
+
+### Performance
+- Cards set by `area`: the entities of the area are gathered once per registry change, not on every state change of Home Assistant (the whole entity registry was scanned each time).
+
 ## 1.0.2 - 2026-11-18
 
 ### Fixes
