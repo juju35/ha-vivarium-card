@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7 - 2026-11-27
+
+### Fixes
+- Idle states use the theme's secondary text colour (`--secondary-text-color`), like every ha-* card.
+- Tiles have the 10 px corner radius shared by the ha-* cards.
+
 ## 1.0.6 - 2026-11-24
 
 ### Maintenance
