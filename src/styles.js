@@ -4,7 +4,7 @@
 
 export const BASE_STYLE = `
   :host { --aq-accent: #0288d1; --aq-ok: var(--success-color, #43a047); --aq-warn: var(--warning-color, #ffa600);
-          --aq-crit: var(--error-color, #db4437); --aq-idle: var(--disabled-text-color, #9e9e9e); --aq-heat: #f59e0b;
+          --aq-crit: var(--error-color, #db4437); --aq-idle: var(--secondary-text-color, #9e9e9e); --aq-heat: #f59e0b;
           --aq-flow: #2f80ed; --aq-cold: #00acc1; --aq-moon: #7e57c2;
           --aq-ok-z: color-mix(in srgb, var(--aq-ok) 55%, transparent); --aq-warn-z: color-mix(in srgb, var(--aq-warn) 45%, transparent);
           --aq-crit-z: color-mix(in srgb, var(--aq-crit) 32%, transparent);
@@ -258,7 +258,7 @@ export const BASE_STYLE = `
 
   /* ── Tiles (look "B" of the ha-* cards: neutral tile, tinted round icon, bold name, colored state, a badge) ── */
   .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .tile { display: flex; gap: 8px; align-items: center; padding: 8px 18px 8px 8px; border-radius: 12px; min-width: 0; position: relative;
+  .tile { display: flex; gap: 8px; align-items: center; padding: 8px 18px 8px 8px; border-radius: 10px; min-width: 0; position: relative;
           background: var(--secondary-background-color, rgba(127,127,127,.08)); cursor: pointer; }
   .tile:hover { background: color-mix(in srgb, var(--c, var(--aq-idle)) 8%, var(--secondary-background-color, rgba(127,127,127,.08))); }
   .pi { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none;
